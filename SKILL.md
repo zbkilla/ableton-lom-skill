@@ -1,7 +1,6 @@
 ---
 name: ableton-lom
-description: |
-  Comprehensive Ableton Live Object Model (LOM) API reference for developing Remote Scripts in Python. Use this skill when working with Ableton Live Remote Scripts, control surfaces, or any Python code that interfaces with Ableton Live's internal API. Covers Live 12.3 API including: Song, Track, Clip, Device, DeviceParameter, Scene, ClipSlot, MixerDevice, Chain, RackDevice, Browser, and all specialized device classes (Simpler, Wavetable, Drift, etc.). Provides property types, access modes (read-only/read-write), observable status, method signatures, and canonical paths. Essential for: (1) Building or extending Remote Scripts, (2) Creating MCP servers for Ableton, (3) Developing control surface integrations, (4) Automating Live via Python.
+description: Ableton Live Object Model (LOM) API reference for Python Remote Scripts and control surface development.
 ---
 
 # Ableton Live Object Model (LOM) API Reference
@@ -25,6 +24,7 @@ class MyScript(ControlSurface):
 ```
 Application
 ├── browser (instruments, sounds, drums, audio_effects, midi_effects)
+├── control_surfaces[] → ControlSurface
 └── Song (live_set)
     ├── tempo, is_playing, loop, metronome
     ├── tracks[] → Track
@@ -56,7 +56,9 @@ Load the appropriate reference file based on what you're working with:
 | Session View | [references/session.md](references/session.md) | Scenes, clip slots, launching, Session View navigation |
 | Views & UI | [references/views.md](references/views.md) | Application.View, Song.View, Track.View, Clip.View, Device.View |
 | Browser | [references/browser.md](references/browser.md) | Browsing/loading instruments, effects, samples, presets |
+| Control Surfaces | [references/control-surface.md](references/control-surface.md) | Accessing configured surfaces, grabbing controls/MIDI, SysEx |
 | Grooves & Tuning | [references/grooves-tuning.md](references/grooves-tuning.md) | Groove pool, tuning systems |
+| Coverage Checklist | [references/lom-coverage.md](references/lom-coverage.md) | Official Cycling '74 LOM object-to-file audit map |
 
 ## Key Concepts
 
@@ -76,6 +78,8 @@ self.schedule_message(0, modify_state)  # Schedule for main thread
 
 ### Canonical Paths
 Objects are accessed via paths like `live_set tracks 0 devices 1 parameters 2`. Use these to understand the object hierarchy.
+
+Special root paths include `live_set` (current Song), `live_app` (Application), `control_surfaces N` (configured ControlSurface), and `this_device` (the Device containing the Max for Live `live.path` object that receives `goto this_device`).
 
 ### Common Patterns
 

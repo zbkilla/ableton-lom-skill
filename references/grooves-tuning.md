@@ -6,23 +6,22 @@ This document covers the GroovePool, Groove, and TuningSystem classes.
 - [GroovePool Class](#groovepool-class)
 - [Groove Class](#groove-class)
 - [TuningSystem Class](#tuningsystem-class)
+- [Related Properties](#related-properties)
 - [Common Patterns](#common-patterns)
 
 ---
 
 ## GroovePool Class
 
-*Available since Live 11.0*
-
-The GroovePool contains all grooves loaded in the current Live Set.
+This class represents the groove pool in Live, providing access to the current set's list of grooves.
 
 **Canonical Path:** `live_set groove_pool`
 
-### Properties
+### Children
 
-| Property | Type | Access | Observable | Description |
-|----------|------|--------|------------|-------------|
-| `grooves` | list[Groove] | R | Yes | List of grooves from top to bottom |
+| Child | Type | Access | Observable | Description |
+|-------|------|--------|------------|-------------|
+| `grooves` | list[Groove] | R | Yes | List of grooves in the groove pool from top to bottom, can be accessed via index |
 
 ### Accessing the Groove Pool
 ```python
@@ -37,29 +36,31 @@ for groove in groove_pool.grooves:
 
 *Available since Live 11.0*
 
-Represents a groove stored in Live's groove pool.
+This class represents a groove in Live.
 
-**Canonical Path:** `live_set groove_pool grooves N`
+**Canonical Paths:**
+- `live_set groove_pool grooves N`
+- `live_set tracks N clip_slots M clip groove`
 
 ### Properties
 
 | Property | Type | Access | Observable | Description |
 |----------|------|--------|------------|-------------|
-| `name` | symbol | R/W | Yes | Groove name |
-| `base` | int | R/W | No | Base grid (see values below) |
-| `quantization_amount` | float | R/W | Yes | Quantization amount (0.0-1.0) |
-| `timing_amount` | float | R/W | Yes | Timing amount (0.0-1.0) |
-| `random_amount` | float | R/W | Yes | Random amount (0.0-1.0) |
-| `velocity_amount` | float | R/W | Yes | Velocity amount (0.0-1.0) |
+| `base` | int | R/W | No | The groove's base grid setting (see values below) |
+| `name` | symbol | R/W | Yes | Identifier for the groove |
+| `quantization_amount` | float | R/W | Yes | Controls quantization effect intensity |
+| `random_amount` | float | R/W | Yes | Controls randomization effect intensity |
+| `timing_amount` | float | R/W | Yes | Controls timing adjustment intensity |
+| `velocity_amount` | float | R/W | Yes | Controls velocity modification intensity |
 
 ### Base Grid Values
 ```
 0 = 1/4
 1 = 1/8
-2 = 1/16
-3 = 1/32
-4 = 1/8 Triplet
-5 = 1/16 Triplet
+2 = 1/8 Triplet
+3 = 1/16
+4 = 1/16 Triplet
+5 = 1/32
 ```
 
 ### Example: Adjust Groove Settings
@@ -96,7 +97,7 @@ if clip.has_groove:
 
 ## TuningSystem Class
 
-Represents the active tuning system in Live.
+This class represents a tuning system in Live.
 
 **Canonical Path:** `live_set tuning_system`
 
@@ -104,12 +105,12 @@ Represents the active tuning system in Live.
 
 | Property | Type | Access | Observable | Description |
 |----------|------|--------|------------|-------------|
-| `name` | symbol | R/W | Yes | Name of active tuning system |
-| `pseudo_octave_in_cents` | float | R | No | Pseudo octave size in cents |
-| `lowest_note` | dict | R/W | Yes | Lowest note (note index and octave) |
-| `highest_note` | dict | R/W | Yes | Highest note (note index and octave) |
-| `reference_pitch` | dict | R/W | Yes | Reference pitch settings |
-| `note_tunings` | dict | R/W | Yes | Relative note tunings in cents |
+| `highest_note` | dictionary | R/W | Yes | The note index within the pseudo octave and octave of the highest note |
+| `lowest_note` | dictionary | R/W | Yes | The note index within the pseudo octave and octave of the lowest note |
+| `name` | symbol | R/W | Yes | The name of the currently active tuning system |
+| `note_tunings` | dictionary | R/W | Yes | The relative note tunings of the Tuning System in cents. Provided as a single-element dictionary holding an array |
+| `pseudo_octave_in_cents` | float | R | No | The pseudo octave in cents of the currently active tuning system |
+| `reference_pitch` | dictionary | R/W | Yes | The reference pitch of the current tuning system |
 
 ### Note Dictionary Format
 
@@ -119,7 +120,7 @@ The `lowest_note`, `highest_note`, and `reference_pitch` properties return dicti
 
 ### Note Tunings Format
 
-The `note_tunings` property returns a dictionary containing an array of cent offsets for each note in the pseudo octave.
+The `note_tunings` property returns a single-element dictionary holding an array of cent offsets for each note in the pseudo octave.
 
 ### Example: Get Tuning Info
 ```python
@@ -149,6 +150,29 @@ def on_tuning_changed():
 
 self._song.tuning_system.add_name_listener(on_tuning_changed)
 ```
+
+---
+
+## Related Properties
+
+These properties on other classes interact with the Groove and TuningSystem classes.
+
+### Song Properties
+
+| Property | Type | Access | Observable | Description |
+|----------|------|--------|------------|-------------|
+| `groove_amount` | float | R/W | Yes | The groove amount from the current set's groove pool (0.0 - 1.0) |
+| `groove_pool` | GroovePool | R | No | Live's groove pool (since Live 11.0) |
+| `tuning_system` | TuningSystem | R | Yes | Live's currently active tuning system |
+
+### Clip Properties
+
+*Available since Live 11.0*
+
+| Property | Type | Access | Observable | Description |
+|----------|------|--------|------------|-------------|
+| `groove` | Groove | R/W | Yes | Get/set/observe the groove associated with this clip |
+| `has_groove` | bool | R | No | Returns true if a groove is associated with this clip |
 
 ---
 
@@ -333,6 +357,6 @@ def analyze_groove(groove):
         "timing_amount": groove.timing_amount,
         "velocity_amount": groove.velocity_amount,
         "random_amount": groove.random_amount,
-        "base_grid": ["1/4", "1/8", "1/16", "1/32", "1/8T", "1/16T"][groove.base]
+        "base_grid": ["1/4", "1/8", "1/8T", "1/16", "1/16T", "1/32"][groove.base]
     }
 ```

@@ -1,17 +1,18 @@
 # Session View Reference
 
-This document covers Scene and ClipSlot classes for Session View control.
+This document covers Scene, ClipSlot, and CuePoint classes for Session View and Arrangement control.
 
 ## Table of Contents
 - [Scene Class](#scene-class)
 - [ClipSlot Class](#clipslot-class)
+- [CuePoint Class](#cuepoint-class)
 - [Common Patterns](#common-patterns)
 
 ---
 
 ## Scene Class
 
-The Scene class represents a row in Session View (a series of clip slots across all tracks).
+This class represents a series of clip slots in Live's Session View matrix.
 
 **Canonical Path:** `live_set scenes N`
 
@@ -19,41 +20,49 @@ The Scene class represents a row in Session View (a series of clip slots across 
 
 | Property | Type | Access | Observable | Description |
 |----------|------|--------|------------|-------------|
-| `name` | symbol | R/W | Yes | Scene display name |
-| `color` | int | R/W | Yes | RGB value (0x00rrggbb) |
-| `color_index` | long | R/W | Yes | Scene's color index |
-| `is_empty` | bool | R | No | 1 when no slots contain clips |
-| `is_triggered` | bool | R | Yes | 1 when scene is blinking |
-| `tempo` | float | R/W | Yes | Scene tempo (-1 if disabled) |
-| `tempo_enabled` | bool | R/W | Yes | Use scene tempo vs song tempo |
-| `time_signature_numerator` | int | R/W | Yes | Time sig numerator (-1 if disabled) |
-| `time_signature_denominator` | int | R/W | Yes | Time sig denominator (-1 if disabled) |
-| `time_signature_enabled` | bool | R/W | Yes | Use scene time sig vs song's |
+| `color` | int | R/W | Yes | RGB value of the scene's color in the form 0x00rrggbb. When setting, the nearest color from the Scene color chooser is applied |
+| `color_index` | long | R/W | Yes | Index value for the scene's color selection |
+| `is_empty` | bool | R | No | Returns 1 if no clip slots contain content |
+| `is_triggered` | bool | R | Yes | Returns 1 when scene is actively blinking |
+| `name` | symbol | R/W | Yes | Scene's display name |
+| `tempo` | float | R/W | Yes | Scene's tempo, returns -1 if disabled |
+| `tempo_enabled` | bool | R/W | Yes | Activates/deactivates scene-specific tempo override |
+| `time_signature_denominator` | int | R/W | Yes | Bottom number of time signature, returns -1 if disabled |
+| `time_signature_enabled` | bool | R/W | Yes | Activates/deactivates scene-specific time signature |
+| `time_signature_numerator` | int | R/W | Yes | Top number of time signature, returns -1 if disabled |
 
 ### Children
 
-| Property | Type | Access | Observable | Description |
-|----------|------|--------|------------|-------------|
-| `clip_slots` | list[ClipSlot] | R | Yes | Clip slots in this scene |
+| Child | Type | Access | Observable | Description |
+|-------|------|--------|------------|-------------|
+| `clip_slots` | list[ClipSlot] | R | Yes | List of ClipSlot objects in this scene |
 
 ### Methods
 
-#### `fire(force_legato=False, can_select_scene_on_launch=True)`
-Launch all clip slots in the scene.
+#### `fire(force_legato, can_select_scene_on_launch)`
+Launch all clip slots in the scene and select it. Starts recording of armed and empty tracks within a Group Track in this scene if Preferences > Launch > Start Recording on Scene Launch is ON.
+- **force_legato** (bool, optional, default=0): When set to 1, triggers legato mode regardless of launch settings
+- **can_select_scene_on_launch** (bool, optional, default=1): When set to 0, fires without selecting the scene
+
 ```python
 scene.fire()  # Normal launch
-scene.fire(True)  # Force legato mode
-scene.fire(False, False)  # Don't select scene after launch
+scene.fire(1)  # Force legato mode
+scene.fire(0, 0)  # Don't select scene after launch
 ```
 
-#### `fire_as_selected(force_legato=False)`
-Fire the scene and advance selection to next scene.
+#### `fire_as_selected(force_legato)`
+Fire the selected scene, then select the next scene. Function location is irrelevant (can be called from any scene object).
+- **force_legato** (bool, optional, default=0): When set to 1, triggers legato mode
+
 ```python
 scene.fire_as_selected()
+scene.fire_as_selected(1)  # With legato
 ```
 
 #### `set_fire_button_state(state)`
-Simulate holding the scene launch button.
+Simulates scene button press when state=1 until state=0 or scene stops.
+- **state** (bool): 1 to press, 0 to release
+
 ```python
 scene.set_fire_button_state(1)  # Press
 # ... time passes
@@ -81,7 +90,7 @@ scene.time_signature_denominator = 8
 
 ## ClipSlot Class
 
-The ClipSlot class represents an entry in Session View's matrix (intersection of track and scene).
+This class represents an entry in Live's Session View matrix. Properties like `playing_status`, `is_playing`, and `is_recording` describe Group Track clip slot states.
 
 **Canonical Path:** `live_set tracks N clip_slots M`
 
@@ -89,68 +98,138 @@ The ClipSlot class represents an entry in Session View's matrix (intersection of
 
 | Property | Type | Access | Observable | Description |
 |----------|------|--------|------------|-------------|
-| `has_clip` | bool | R | Yes | 1 if clip exists in this slot |
-| `clip` | Clip | R | No | The clip (if has_clip is true) |
-| `has_stop_button` | bool | R/W | Yes | 1 if slot has stop button |
-| `is_playing` | bool | R | No | 1 if playing_status != 0 |
-| `is_recording` | bool | R | No | 1 if playing_status == 2 |
-| `is_triggered` | bool | R | Yes | 1 if launch/stop button blinking |
-| `playing_status` | int | R | Yes | 0=stopped/empty, 1=playing, 2=recording |
-| `will_record_on_start` | bool | R | No | 1 if slot will record when started |
-| `is_group_slot` | bool | R | No | 1 if this is a Group Track slot |
-| `controls_other_clips` | bool | R | Yes | 1 if Group slot contains active clips |
-| `color` | long | R | Yes | RGB of first clip in Group (Group slots) |
-| `color_index` | long | R | Yes | Color index (Group slots) |
+| `color` | long | R | Yes | The color of the first clip in the Group Track if the clip slot is a Group Track slot |
+| `color_index` | long | R | Yes | Color index of first clip in Group Track slot |
+| `controls_other_clips` | bool | R | Yes | Returns 1 for Group Track slots with non-deactivated clips in contained tracks |
+| `has_clip` | bool | R | Yes | Returns 1 if a clip exists in this slot |
+| `has_stop_button` | bool | R/W | Yes | Get/set whether this clip slot has a stop button that stops its track or Group Track tracks |
+| `is_group_slot` | bool | R | No | Returns 1 if this slot belongs to a Group Track |
+| `is_playing` | bool | R | No | Returns 1 if playing_status is not 0 |
+| `is_recording` | bool | R | No | Returns 1 if playing_status equals 2 |
+| `is_triggered` | bool | R | Yes | Returns 1 if clip slot button or contained clip button is blinking |
+| `playing_status` | int | R | Yes | 0=stopped, 1=playing, 2=recording (for Group Track clips) |
+| `will_record_on_start` | bool | R | No | Returns 1 if slot will record upon start |
+
+### Children
+
+| Child | Type | Access | Observable | Description |
+|-------|------|--------|------------|-------------|
+| `clip` | Clip | R | No | The clip in this slot (returns ID 0 if the slot is empty) |
 
 ### Methods
 
-#### `fire(record_length=None, launch_quantization=None)`
-Launch the clip or trigger stop button. Optionally start recording.
-```python
-clip_slot.fire()  # Launch clip or stop button
-clip_slot.fire(4.0)  # Record for 4 beats
-clip_slot.fire(4.0, 4)  # Record 4 beats with 1/4 quantization
-```
-
-#### `stop()`
-Stop playback or recording in this track (or nested group tracks).
-```python
-clip_slot.stop()
-```
-
-#### `set_fire_button_state(state)`
-Simulate holding the clip launch button.
-```python
-clip_slot.set_fire_button_state(1)  # Press
-# ... time passes
-clip_slot.set_fire_button_state(0)  # Release
-```
-
-#### `create_clip(length)`
-Create a MIDI clip of specified beat length in empty MIDI track slots.
-```python
-clip_slot.create_clip(4.0)  # 4-beat clip
-```
-
 #### `create_audio_clip(path)`
-Create an audio clip from an absolute file path.
+Creates an audio clip referencing the file at the given path. Throws an error if the slot isn't on an audio track or if the track is frozen.
+- **path** (string): Absolute file path to the audio file
+
 ```python
 clip_slot.create_audio_clip("/path/to/audio.wav")
 ```
 
+#### `create_clip(length)`
+Create a MIDI clip of specified beat length. Can only be called on empty clip slots in MIDI tracks.
+- **length** (float): Length in beats (must be > 0.0)
+
+```python
+clip_slot.create_clip(4.0)  # 4-beat clip
+```
+
 #### `delete_clip()`
-Remove the contained clip.
+Removes the contained clip.
+
 ```python
 if clip_slot.has_clip:
     clip_slot.delete_clip()
 ```
 
 #### `duplicate_clip_to(target_clip_slot)`
-Copy this slot's clip to another ClipSlot.
+Copies this slot's clip to the target, overwriting any existing clip if present.
+- **target_clip_slot** (ClipSlot): The destination clip slot
+
 ```python
 source_slot = track.clip_slots[0]
 target_slot = track.clip_slots[1]
 source_slot.duplicate_clip_to(target_slot)
+```
+
+#### `fire(record_length, launch_quantization)`
+Fires the clip or Stop Button. If the track is armed and the slot is empty, recording will start. Both parameters are optional.
+- **record_length** (float, optional): Recording length in beats
+- **launch_quantization** (int, optional): Quantization override value
+
+```python
+clip_slot.fire()  # Launch clip or stop button
+clip_slot.fire(4.0)  # Record for 4 beats
+clip_slot.fire(4.0, 4)  # Record 4 beats with quantization override
+```
+
+#### `set_fire_button_state(state)`
+Simulates Clip Launch button press until state is set to 0 or slot is stopped.
+- **state** (bool): 1 to press, 0 to release
+
+```python
+clip_slot.set_fire_button_state(1)  # Press
+# ... time passes
+clip_slot.set_fire_button_state(0)  # Release
+```
+
+#### `stop()`
+Stops playing or recording in the track or Group Track. Callable on any slot of the track.
+
+```python
+clip_slot.stop()
+```
+
+---
+
+## CuePoint Class
+
+This class represents a locator/marker in Live's Arrangement View.
+
+**Canonical Path:** `live_set cue_points N`
+
+### Properties
+
+| Property | Type | Access | Observable | Description |
+|----------|------|--------|------------|-------------|
+| `name` | symbol | R/W | Yes | The name of the cue point/locator |
+| `time` | float | R | Yes | Arrangement position of the marker in beats |
+
+### Methods
+
+#### `jump()`
+Set the current Arrangement playback position to this marker. If the song is playing, the jump is quantized.
+
+```python
+cue_point = song.cue_points[0]
+cue_point.jump()  # Jump to this marker position
+```
+
+### Example: Jump to Named Cue Point
+```python
+def jump_to_cue_point(song, name):
+    """Find and jump to a cue point by name."""
+    for cue in song.cue_points:
+        if cue.name == name:
+            cue.jump()
+            return True
+    return False
+
+jump_to_cue_point(song, "Chorus")
+```
+
+### Example: List All Cue Points
+```python
+def get_cue_points_info(song):
+    """Get info about all cue points in the song."""
+    return [
+        {
+            "name": cue.name,
+            "time": cue.time,
+            "bars": cue.time / 4.0  # Assuming 4/4 time
+        }
+        for cue in song.cue_points
+    ]
 ```
 
 ---
