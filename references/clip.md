@@ -103,7 +103,7 @@ The Clip class represents audio or MIDI clips in Ableton Live. Clips can exist i
 3 = Repeat
 ```
 
-> **Follow actions are not in the LOM.** As of Live 12.4, neither `Clip` nor `ClipSlot` (nor `Scene`/`Song`) exposes any `follow_action_*` member, so the Launch box's Follow Action settings cannot be read or set from **any** host — the LOM itself lacks them, so Max/JS is no better than Python. Only the launch properties above are scriptable. Follow actions *are* persisted in the `.als` project XML, so the sole programmatic route is editing the gzipped project file offline and reopening. (Verified by live introspection.)
+> **Follow actions are not in the LOM.** As of Live 12.4, neither `Clip` nor `ClipSlot` (nor `Scene`/`Song`) exposes any `follow_action_*` member, so the Launch box's Follow Action settings cannot be read or set from **any** host — the LOM itself lacks them, so Max/JS is no better than Python. Only the launch properties above are scriptable. Follow actions *are* persisted in the `.als` project XML, so the sole programmatic route is editing the gzipped project file offline and reopening — see [python-remote-script-notes.md](python-remote-script-notes.md) §7 for the verified `<FollowAction>` block schema, action enum, and round-trip. (Verified by live introspection.)
 
 ---
 
