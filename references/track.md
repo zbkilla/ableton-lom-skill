@@ -158,6 +158,7 @@ Creates a take lane for the track.
 ```python
 track.create_take_lane()
 ```
+> **No delete counterpart.** There is no `delete_take_lane` on Track, the `take_lanes` collection has no setter, and `TakeLane` has no delete-self method — so `create_take_lane()` is **irreversible via the LOM** (remove take lanes only in Live's UI). Verified Live 12.4.
 
 ### `delete_clip(clip)`
 Removes the specified clip from the track.
