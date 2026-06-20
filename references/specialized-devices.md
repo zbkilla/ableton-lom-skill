@@ -33,6 +33,8 @@ This class represents an instance of Simpler in Live.
 
 **Canonical Path:** `live_set tracks N devices M` (when device is Simpler)
 
+> **`class_name` is `OriginalSimpler`** (not "Simpler" or "SimplerDevice") — verified Live 12.4. Match on this when identifying a Simpler by `device.class_name`; `class_display_name` is "Simpler". (For reference, other Lite stock devices report `class_name` like `AutoFilter2`, `Saturator`, `FilterEQ3` (EQ Three), `Drift` — the display name and class name often differ.)
+
 ### Children
 
 | Property | Type | Access | Observable | Description |
