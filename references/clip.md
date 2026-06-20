@@ -161,6 +161,12 @@ Notes are represented as dictionaries with these keys:
 - `velocity_deviation`: Velocity randomization (-127.0 to 127.0, default 0.0)
 - `release_velocity`: Release velocity (default 64)
 
+> **Host difference — Python Remote Script vs Max/JS (verified live, Live 12.4).** The dict forms below are the **Max for Live / JS** surface. From a **Python Remote Script** the same API takes/returns objects, not dicts:
+> - `add_new_notes` and `apply_note_modifications` require a sequence of `Live.Clip.MidiNoteSpecification` objects — a plain dict raises `No registered converter ... TNoteSpecification from ... type dict`, and the `{"notes": [...]}` wrapper makes Live iterate the dict's *keys* (a `str`). Build specs with `Live.Clip.MidiNoteSpecification(pitch=..., start_time=..., duration=..., velocity=..., mute=..., probability=..., velocity_deviation=..., release_velocity=...)`.
+> - `get_notes_extended` / `get_all_notes_extended` return a `MidiNoteVector` of `MidiNote` **objects** (not `list[dict]`); read each note's fields as attributes (`note.pitch`, `note.start_time`, ... `note.note_id`).
+> - To edit: fetch the vector, mutate the `MidiNote`s in place (their fields are settable), then pass the vector to `apply_note_modifications`. `note_id` is the join key.
+> - `remove_notes_extended(from_pitch, pitch_span, from_time, time_span)` and `remove_notes_by_id([...])` take plain numbers and work as-is.
+
 ### `add_new_notes(notes_dict)` -> list[note_id] (Live 11.0+)
 Add notes to the clip. Returns list of note IDs.
 ```python
