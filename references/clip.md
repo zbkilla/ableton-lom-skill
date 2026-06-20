@@ -277,6 +277,7 @@ clip.select_all_notes()             # Select all notes in the clip
 clip.deselect_all_notes()           # Deselect all notes
 clip.select_notes_by_id([1, 2, 3])  # Select specific notes by ID (Live 11.0.6+)
 ```
+> `get_selected_notes_extended()` returns a `MidiNoteVector` of `MidiNote` objects (like `get_notes_extended`) — read fields by attribute. **Avoid the legacy `replace_selected_notes(notes)`**: it takes a tuple of 5-tuples `(pitch, start, duration, velocity, mute)` (a JSON list and `MidiNoteSpecification` are both rejected), and as the **pre-Live-11 API** it pops a "loss of note data" warning and **strips** probability/velocity_deviation/release_velocity. To replace a selection losslessly, read the selection, `remove_notes_by_id(...)`, then `add_new_notes(...)` with the modern API.
 
 ### Quantize Methods
 
@@ -308,6 +309,7 @@ clip.add_warp_marker({"beat_time": 4.0})
 # Or with sample time
 clip.add_warp_marker({"beat_time": 4.0, "sample_time": 88200})
 ```
+> **Not callable from a Python Remote Script (verified Live 12.4).** `add_warp_marker` needs a C++ `TWarpMarker`; the dict form above is Max/JS-only, and `Live.Clip.WarpMarker` has **no usable constructor** (only `WarpMarker(other)` copy — `WarpMarker(beat_time=…)`, positional, empty-then-setattr, dict, and float all raise converter / `__init__` errors). So from Python you can **read** (`clip.warp_markers`), **move**, and **remove** warp markers, but **not add** one. (`move_warp_marker`/`remove_warp_marker` below take plain floats and work fine.)
 
 ### `move_warp_marker(beat_time, beat_time_distance)`
 Relocate a warp marker by a specified distance.
