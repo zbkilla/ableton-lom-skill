@@ -14,7 +14,7 @@ Members the reference tables type as `dict` — routing types/channels, and simi
   track.input_routing_type = track.available_input_routing_types[0]   # assign the object
   print(track.input_routing_type.display_name)
   ```
-- The same applies to object-valued properties like `clip.groove` (a `Groove`) — assign a real `Groove` (e.g. from `song.groove_pool.grooves`), not a string or dict.
+- The same applies to object-valued properties like `clip.groove` (a `Groove`) — assign a real `Groove` (e.g. from `song.groove_pool.grooves`), not a string or dict. Note `clip.groove` **cannot be cleared** by assigning `None` (the C++ setter rejects `NoneType`) — reassign a different groove or recreate the clip.
 
 See `track.md` (routing) and `grooves-tuning.md` (groove).
 
@@ -59,6 +59,15 @@ Selecting the track *is* the targeting — this is how you load a device onto a 
 ## 6. State changes run on the main thread
 
 Mutating the live set (creating tracks/clips, setting values, calling state-changing methods) must happen on Live's main thread. From a socket/listener thread, marshal the call with `schedule_message`; read-only access can happen on any thread. See SKILL.md → "Threading."
+
+## 7. Not every GUI feature is in the LOM
+
+Some things you can do in Live's UI have **no LOM member at all** — they're simply not scriptable. Verify by introspection before assuming a feature is reachable; absence is a real answer.
+
+- **Follow actions** — verified Live 12.4: neither `Clip` nor `ClipSlot` exposes any `follow_action_*` member. The Launch box's Follow Action settings cannot be read or set. (Clip *launch* settings — `launch_mode`, `launch_quantization`, `legato`, `velocity_amount` — *are* exposed.)
+- **Some host editions cap creation, not the API** — e.g. Live Lite caps tracks and return tracks: `create_midi_track` / `create_audio_track` / `create_return_track` raise `"Couldn't create track"` at the limit, even though the methods exist. That's an edition limit, not a missing member.
+
+When the GUI has a control the LOM doesn't, record it as a verified absence so the next author doesn't search for it.
 
 ---
 
