@@ -331,6 +331,7 @@ Capture recent MIDI into a clip.
 if self._song.can_capture_midi:
     self._song.capture_midi(0)  # Auto destination
 ```
+> Guard with `can_capture_midi` — when it's `False` (no recently-played material), `capture_midi()` is a **silent no-op**: it returns without error and does nothing (verified Live 12.4). So a "successful" call doesn't imply a clip was created.
 
 ### `re_enable_automation()`
 Trigger 'Re-Enable Automation', re-activating automation in all running Session clips.
