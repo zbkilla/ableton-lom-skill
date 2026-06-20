@@ -103,7 +103,7 @@ The Clip class represents audio or MIDI clips in Ableton Live. Clips can exist i
 3 = Repeat
 ```
 
-> **Follow actions are not in the LOM.** As of Live 12.4, neither `Clip` nor `ClipSlot` exposes any `follow_action_*` member, so the Launch box's Follow Action settings cannot be read or set from a Remote Script — only the launch properties above are scriptable. (Verified by live introspection; the official LOM has no follow-action API.)
+> **Follow actions are not in the LOM.** As of Live 12.4, neither `Clip` nor `ClipSlot` (nor `Scene`/`Song`) exposes any `follow_action_*` member, so the Launch box's Follow Action settings cannot be read or set from **any** host — the LOM itself lacks them, so Max/JS is no better than Python. Only the launch properties above are scriptable. Follow actions *are* persisted in the `.als` project XML, so the sole programmatic route is editing the gzipped project file offline and reopening. (Verified by live introspection.)
 
 ---
 
@@ -114,7 +114,7 @@ The Clip class represents audio or MIDI clips in Ableton Live. Clips can exist i
 | `groove` | Groove | R/W | Yes | Get/set/observe the groove associated with this clip; Live 11.0+ |
 | `has_groove` | bool | R | No | Returns true if a groove is associated with the clip |
 
-Assign a groove by setting `groove` to a `Groove` object from `song.groove_pool.grooves` (the object itself — see [python-remote-script-notes.md](python-remote-script-notes.md) §1). **It cannot be cleared from the LOM:** `clip.groove = None` is rejected by Live's C++ setter (`NoneType` not accepted) — reassign a different groove or recreate the clip. (Verified Live 12.4.)
+Assign a groove by setting `groove` to a `Groove` object from `song.groove_pool.grooves` (the object itself — see [python-remote-script-notes.md](python-remote-script-notes.md) §1). **Clearing is host-asymmetric:** from **Python** it can't be cleared — `clip.groove` rejects `None`/`0`, and `GroovePool`/`Groove`/`Clip` expose no clear method (no Python handle for the LOM null object). From **Max/JS**, assign the null object `id 0` to clear it. Python fallback: reassign a different groove or recreate the clip. (Verified Live 12.4.)
 
 ---
 
