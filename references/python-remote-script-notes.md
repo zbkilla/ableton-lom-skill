@@ -32,6 +32,7 @@ A few APIs accept a native (C++) specification object. A plain Python `dict`/`tu
   ```
   The `{"notes": [...]}` wrapper and bare dicts are the Max/JS form; passing the wrapper makes Live iterate the dict's *keys* (a `str`). See `clip.md`.
 - **Automation events.** `Envelope.create_event(time, value)` needs a C++ `TEnvelopeEvent` you can't build from Python — use **`insert_step(time, length, value)`** instead. See `clip.md` ("Writing automation").
+- **`duplicate_notes_by_id`.** The documented **dict** form `{"note_ids":…, "destination_time":…, "transposition_amount":…}` is Max/JS-only — from Python it raises `… unsigned long long from … type str`. Use the **positional** form: `clip.duplicate_notes_by_id(ids, destination_time, transposition_amount)`. (The bare `duplicate_notes_by_id(ids)` works in both.)
 
 ## 3. Reads return objects, not list[dict] — and they can be path-less
 

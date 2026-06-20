@@ -175,6 +175,17 @@ Removes the device at the specified index.
 track.delete_device(0)  # Remove first device
 ```
 
+### `duplicate_device(index)`
+Duplicates the device at `index`; the copy is inserted immediately after it.
+
+**Parameters:**
+- `index` (int): Index of the device to duplicate
+
+> **Effects only.** Duplicating an **instrument** raises `Can not duplicate instrument` (a track holds at most one instrument). Audio/MIDI effects duplicate fine. (Verified Live 12.4.)
+```python
+track.duplicate_device(0)  # duplicate first device (must be an effect)
+```
+
 ### `insert_device(device_name, target_index=None)`
 *Available since Live 12.3*
 

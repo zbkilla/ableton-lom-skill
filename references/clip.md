@@ -258,6 +258,7 @@ clip.duplicate_notes_by_id({
     "transposition_amount": 12  # Up one octave
 })
 ```
+> **From a Python Remote Script the dict form FAILS** (`No registered converter … unsigned long long from … type str`) — that's the Max/JS surface. Python takes **positional** args: `clip.duplicate_notes_by_id([1,2,3], 4.0, 12)` (ids, destination_time, transposition_amount). The bare-list form `duplicate_notes_by_id([1,2,3])` works in both. See [python-remote-script-notes.md](python-remote-script-notes.md) §2. (Verified Live 12.4.)
 
 ### `duplicate_region(region_start, region_length, destination_time, pitch=-1, transposition_amount=0)`
 Duplicate notes in a region.
