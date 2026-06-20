@@ -287,6 +287,8 @@ clip.quantize(grid, amount)  # grid = quantization index, amount = 0.0-1.0
 clip.quantize_pitch(60, grid, amount)  # Only C4 notes
 ```
 
+> **`grid` is the MIDI/record-quantization index (0-8), not the 0-14 launch-quantization index** (verified Live 12.4): `0` None, `1` 1/4, `2` 1/8, `3` 1/8T, `4` 1/8+1/8T, `5` 1/16, `6` 1/16T, `7` 1/16+1/16T, `8` 1/32 — see "MIDI Recording Quantization (0-8)" above, *not* "Launch/Clip Trigger Quantization (0-14)". (Confirmed: grid `1`→1/4, `2`→1/8, `5`→1/16, `8`→1/32.)
+
 ### `duplicate_loop()`
 Makes loop 2x longer and duplicates notes and envelopes.
 
