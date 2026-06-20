@@ -68,6 +68,7 @@ RackDevice inherits all properties and methods from the Device class:
 | `chain_selector` | DeviceParameter | R | No | Convenience accessor for the Rack's chain selector |
 | `chains` | list[Chain] | R | Yes | The Rack's chains |
 | `drum_pads` | list[DrumPad] | R | Yes | All 128 DrumPads for topmost Drum Rack; inner Drum Racks return a list of 0 entries |
+| `macros_mapped` | list[bool] | R | Yes | One bool per macro slot (16); `1` = that Macro is mapped to a parameter. Per-slot detail complementing the scalar `has_macro_mappings`. (Added from live Live 12.4 introspection; not present in the upstream Cycling '74 RackDevice table.) |
 | `return_chains` | list[Chain] | R | Yes | The Rack's return chains |
 | `visible_drum_pads` | list[DrumPad] | R | Yes | All 16 visible DrumPads for topmost Drum Rack; inner Drum Racks return a list of 0 entries |
 
