@@ -98,6 +98,8 @@ The Song class represents a Live Set. Access via `self.song()` or `self._song`.
 | `scale_intervals` | list | R | Yes | Integer list representing current scale intervals |
 | `scale_mode` | bool | R/W | Yes | Scale Mode highlighting and editing state |
 
+> **Notes (verified Live 12.4).** Scale is **song-global** — there is no per-clip scale member (`Clip` exposes no scale/root). `scale_intervals` are semitone offsets from `root_note` (0=C). Setting an **unrecognized `scale_name` does not raise** — Live silently falls back to `"Major"` (e.g. `"Blues"`, `"Diminished"` are not chooser names), so validate by reading `scale_name` back. Verified chooser names include Major, Minor, Dorian, Phrygian, Lydian, Mixolydian, Locrian, Harmonic/Melodic Minor, Major/Minor Pentatonic, Whole Tone, Hungarian Minor, Iwato, Hirajoshi. `song.tuning_system` (see grooves-tuning.md) is **`None`** unless a custom tuning is loaded — guard for `None`.
+
 ## Other Properties
 
 | Property | Type | Access | Observable | Description |

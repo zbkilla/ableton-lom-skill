@@ -163,7 +163,7 @@ These properties on other classes interact with the Groove and TuningSystem clas
 |----------|------|--------|------------|-------------|
 | `groove_amount` | float | R/W | Yes | The groove amount from the current set's groove pool (0.0 - 1.0) |
 | `groove_pool` | GroovePool | R | No | Live's groove pool (since Live 11.0) |
-| `tuning_system` | TuningSystem | R | Yes | Live's currently active tuning system |
+| `tuning_system` | TuningSystem | R | Yes | Live's currently active tuning system; **`None` unless a custom tuning is loaded** (default 12-TET sets return `None`, verified Live 12.4 — guard before access) |
 
 ### Clip Properties
 
