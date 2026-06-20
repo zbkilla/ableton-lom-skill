@@ -58,6 +58,7 @@ Load the appropriate reference file based on what you're working with:
 | Browser | [references/browser.md](references/browser.md) | Browsing/loading instruments, effects, samples, presets |
 | Control Surfaces | [references/control-surface.md](references/control-surface.md) | Accessing configured surfaces, grabbing controls/MIDI, SysEx |
 | Grooves & Tuning | [references/grooves-tuning.md](references/grooves-tuning.md) | Groove pool, tuning systems |
+| Python Remote Script Notes | [references/python-remote-script-notes.md](references/python-remote-script-notes.md) | Host differences from a Python Remote Script: dict-vs-object members, C++-typed args (notes/automation), normalized params, `load_item` targeting |
 | Coverage Checklist | [references/lom-coverage.md](references/lom-coverage.md) | Official Cycling '74 LOM object-to-file audit map |
 
 ## Key Concepts

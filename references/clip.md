@@ -367,6 +367,37 @@ Remove automation for a specific parameter.
 clip.clear_envelope(device.parameters[0])
 ```
 
+### `create_automation_envelope(device_parameter)` -> Envelope
+Create a clip automation envelope for a device parameter. **Raises** `"There is already an envelope for the parameter"` if one already exists — reuse it with `automation_envelope(...)` instead of creating again.
+```python
+env = clip.create_automation_envelope(device.parameters[1])
+```
+
+### `automation_envelope(device_parameter)` -> Envelope | None
+Return the existing envelope for a parameter, or `None`. Use this to reuse without the create error:
+```python
+p = device.parameters[1]
+env = clip.automation_envelope(p) or clip.create_automation_envelope(p)
+```
+`clip.has_envelopes` (bool) reports whether the clip has any envelopes.
+
+### Writing automation — the `Envelope` object (verified, Live 12.4 Python Remote Script)
+The object returned by `create_automation_envelope` / `automation_envelope` is **path-less** (no `live_set …` path — hold the reference the method hands you). Write to it with:
+- **`insert_step(time, length, value)`** — write a flat segment of `length` beats starting at `time`, set to `value`. **This is the writer to use from Python.** Approximate linear ramps by laying many fine `insert_step`s.
+- `value_at_time(time)` -> float — read the automated value at a beat.
+- `delete_events_in_range(time, length)` — clear a span.
+- **Avoid `create_event(time, value)`** from Python — it requires a C++ `TEnvelopeEvent` you cannot construct from Python literals (raises a converter error). `insert_step` is the buildable path.
+
+**Envelope values are in the parameter's own units, which are frequently normalized 0.0–1.0** (e.g. Auto Filter `Frequency` `0.9` ≈ 10 kHz) — read `min`/`max`/`str_for_value` first.
+```python
+p = device.parameters[1]
+env = clip.automation_envelope(p) or clip.create_automation_envelope(p)
+env.delete_events_in_range(0.0, clip.length)
+env.insert_step(0.0, 2.0, 0.9)   # flat at 0.9 for beats 0–2
+env.insert_step(2.0, 2.0, 0.1)   # flat at 0.1 for beats 2–4
+print(env.value_at_time(2.0))    # -> 0.1
+```
+
 ---
 
 ## Other Methods

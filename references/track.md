@@ -82,6 +82,8 @@ for routing in track.available_input_routing_types:
 track.input_routing_type = track.available_input_routing_types[0]
 ```
 
+> **Python Remote Script note (host difference).** The `*_routing_type` / `*_routing_channel` members are typed "dict" above (the Max/JS view). From a **Python Remote Script** they are **`RoutingType` / `RoutingChannel` objects**, not literal dicts: read fields by attribute — `routing.display_name`, `routing.identifier` — *not* `routing['display_name']`, and assign the object itself (as in the example), not a dict. `available_*` are collections of those objects; index/iterate them to pick one. See [python-remote-script-notes.md](python-remote-script-notes.md).
+
 ## Meter Properties
 
 All meter values range from 0.0 to 1.0.

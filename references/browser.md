@@ -69,6 +69,8 @@ This class represents the Live browser database and provides access to all brows
 | `stop_preview()` | None | Stop the current preview |
 | `relation_to_hotswap_target(browser_item)` | Relation | Returns the relation between the given browser item and the current hotswap target |
 
+> **`load_item` targets the *selected* track** — `song.view.selected_track` at its selected position; there is no track argument. To load onto a specific track, set `song.view.selected_track` to it first, then call `load_item`. This is the only way to load a device onto a **return track** (set `song.view.selected_track = song.return_tracks[i]` first). The item must be loadable (`browser_item.is_loadable`); reach it via the category roots (`browser.audio_effects`, `browser.instruments`, …) and their `.children`.
+
 ### Listener Methods
 
 | Method | Return Type | Description |

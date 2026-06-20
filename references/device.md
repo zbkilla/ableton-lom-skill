@@ -118,6 +118,8 @@ param = device.parameters[0]
 display = param.str_for_value(param.value)  # e.g., "1.2 dB"
 ```
 
+> **Many parameter `value`s are normalized 0.0–1.0, not engineering units** (e.g. an Auto Filter `Frequency` of `0.9` displays "10.0 kHz"). `value` is the internal number between `min`/`max`; always read `min`/`max` and `str_for_value(value)` before setting — don't assume Hz/dB. Quantized params (`is_quantized` = 1) take discrete indices, with the choices in `value_items`. See [python-remote-script-notes.md](python-remote-script-notes.md).
+
 #### `re_enable_automation()`
 - **Description:** Restores automation functionality for the parameter.
 ```python
